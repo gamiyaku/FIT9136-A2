@@ -206,3 +206,87 @@ def read_tasks(
             print_warning(f"Task {task.get('task_id', '')} has invalid values.")
 
     return valid_tasks
+
+def read_schedules(
+    schedules_path: str,
+    robot_ids: list[str],
+    task_ids: list[str]
+) -> list[dict]:
+    """
+    Read and validate schedule data.
+
+    Each valid row must contain:
+        a schedule ID
+        a robot ID
+        one or more task IDs
+
+    Args:
+        schedules_path: Path to the schedules CSV file.
+        robot_ids: A list of valid robot IDs.
+        task_ids: A list of valid task IDs.
+
+    Returns:
+        A list of valid schedule records.
+    """
+    schedules = []
+
+    with open(schedules_path, "r", newline="") as file:
+        reader = csv.reader(file)
+
+        for row in reader:
+            if len(row) < 3:
+                print_warning("Schedule row has invalid values.")
+                continue
+
+            valid = True
+
+            schedule_id = row[0]
+            robot_id = row[1]
+            schedule_task_ids = row[2:]
+
+            if not is_valid_id(schedule_id):
+                valid = False
+
+            if robot_id not in robot_ids:
+                valid = False
+
+            for task_id in schedule_task_ids:
+                if task_id not in task_ids:
+                    valid = False
+
+            if valid:
+                schedules.append({
+                    "schedule_id": schedule_id,
+                    "robot_id": robot_id,
+                    "task_ids": schedule_task_ids
+                })
+            else:
+                print_warning(f"Schedule {schedule_id} has invalid values.")
+
+    return schedules
+
+
+def read_distances(distances_path: str) -> list[list[float]]:
+    """
+    Read the distance matrix from a CSV file.
+
+    Args:
+        distances_path: Path to the distances CSV file.
+
+    Returns:
+        A list of lists containing distance values as floats.
+    """
+    distances = []
+
+    with open(distances_path, "r", newline="") as file:
+        reader = csv.reader(file)
+
+        for row in reader:
+            distance_row = []
+
+            for value in row:
+                distance_row.append(float(value))
+
+            distances.append(distance_row)
+
+    return distances

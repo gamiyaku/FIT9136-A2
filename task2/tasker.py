@@ -1,16 +1,17 @@
 def find_record_by_id(table: list[dict], id_field: str, record_id: str) -> dict | None:
     """
-    Return the first record in the table whose id_field matches record_id.
+    Return the first record in a table whose ID matches the given record ID.
     """
     for record in table:
         if record[id_field] == record_id:
             return record
+
     return None
 
 
 def get_id_list(table: list[dict], id_field: str) -> list[str]:
     """
-    Extract all IDs from a table.
+    Extract all ID values from a table.
     """
     ids = []
 
@@ -24,15 +25,11 @@ def is_task_executable(
     task: dict,
     robots: list[dict],
     destinations: list[dict],
-    packages: list[dict]
+    packages: list[dict],
+    tasks: list[dict]
 ) -> bool:
     """
-    Check whether a task is executable.
-
-    A task is executable if there exists at least one robot that:
-    - is in the source zone
-    - is also in the target zone
-    - can carry the required package weight
+    Check whether a single task is executable.
     """
     source = find_record_by_id(destinations, "destination_id", task["source_id"])
     target = find_record_by_id(destinations, "destination_id", task["target_id"])
@@ -43,12 +40,12 @@ def is_task_executable(
 
     source_zone = source["zone"]
     target_zone = target["zone"]
-    package_weight = package["weight"]
+    package_weight = float(package["weight"])
 
     for robot in robots:
         same_source_zone = robot["zone"] == source_zone
         same_target_zone = robot["zone"] == target_zone
-        enough_capacity = robot["max_load"] >= package_weight
+        enough_capacity = float(robot["max_load"]) >= package_weight
 
         if same_source_zone and same_target_zone and enough_capacity:
             return True
@@ -68,6 +65,7 @@ def get_task_results(
     results = []
 
     for task in tasks:
-        results.append(is_task_executable(task, robots, destinations, packages))
+        result = is_task_executable(task, robots, destinations, packages, tasks)
+        results.append(result)
 
     return results

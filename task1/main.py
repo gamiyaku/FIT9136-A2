@@ -283,6 +283,8 @@ def write_feasibility_report(report_path: str, task_ids: list[str], results: lis
         None.
     """
     with open(report_path, "w", newline="") as file:
+        file.write("Task Feasibility Report\n\n")
+
         executable_count = 0
         non_executable_count = 0
 
